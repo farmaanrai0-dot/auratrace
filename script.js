@@ -1488,115 +1488,27 @@ function renderProducts() {
     const productName = product.name.replace('AuraTrace ', '');
     const description = productDescriptions[product.id] || product.category;
     
-    // Determine packaging type
-    let packagingType = 'bottle'; // default
-    if (product.id === 1001 || product.id === 1033) {
-      packagingType = 'pouch'; // Tea products
-    } else if (product.id === 1030) {
-      packagingType = 'oil-bottle'; // Dard Rakshak Oil
-    } else if (product.id === 1017) {
-      packagingType = 'combo'; // Ashwagandha + Ayush Kwath Combo
-    }
-    
     const card = document.createElement('article');
     card.className = 'product-card';
-    card.setAttribute('data-packaging', packagingType);
-    
-    let packagingHTML = '';
-    
-    if (packagingType === 'bottle') {
-      packagingHTML = `
-        <div class="bottle-container">
-          <div class="bottle-cap"></div>
-          <div class="bottle">
-            <div class="bottle-label">
-              <div class="label-content">
-                <div>
-                  <div class="label-brand">AURATRACE</div>
-                  <div class="label-product">${productName}</div>
-                  <div class="label-divider"></div>
-                  <div class="label-category">${description}</div>
-                </div>
-                ${leafSVG}
-                <div class="label-footer">Pure & Potent</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    } else if (packagingType === 'pouch') {
-      packagingHTML = `
-        <div class="pouch-container">
-          <div class="pouch">
-            <div class="pouch-label">
-              <div class="label-content">
-                <div>
-                  <div class="label-brand">AURATRACE</div>
-                  <div class="label-product">${productName}</div>
-                  <div class="label-divider"></div>
-                  <div class="label-category">${description}</div>
-                </div>
-                ${leafSVG}
-                <div class="label-footer">Pure & Potent</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    } else if (packagingType === 'oil-bottle') {
-      packagingHTML = `
-        <div class="oil-bottle-container">
-          <div class="oil-pipette"></div>
-          <div class="oil-bottle">
-            <div class="bottle-label">
-              <div class="label-content">
-                <div>
-                  <div class="label-brand">AURATRACE</div>
-                  <div class="label-product">${productName}</div>
-                  <div class="label-divider"></div>
-                  <div class="label-category">${description}</div>
-                </div>
-                ${leafSVG}
-                <div class="label-footer">Pure & Potent</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    } else if (packagingType === 'combo') {
-      packagingHTML = `
-        <div class="combo-container">
-          <div class="combo-item">
-            <div class="bottle-container small">
-              <div class="bottle-cap small"></div>
-              <div class="bottle small">
-                <div class="bottle-label small">
-                  <div class="label-content small">
-                    <div class="label-brand small">AURATRACE</div>
-                    <div class="label-product small">Ashwagandha</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="combo-item">
-            <div class="pouch-container small">
-              <div class="pouch small">
-                <div class="pouch-label small">
-                  <div class="label-content small">
-                    <div class="label-brand small">AURATRACE</div>
-                    <div class="label-product small">Ayush Kwath</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
     
     card.innerHTML = `
-      ${packagingHTML}
+      <div class="bottle-container">
+        <div class="bottle-cap"></div>
+        <div class="bottle">
+          <div class="bottle-label">
+            <div class="label-content">
+              <div>
+                <div class="label-brand">AURATRACE</div>
+                <div class="label-product">${productName}</div>
+                <div class="label-divider"></div>
+                <div class="label-category">${description}</div>
+              </div>
+              ${leafSVG}
+              <div class="label-footer">AuraTrace Labs • UK</div>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <div class="product-info">
         <div class="product-name">${productName}</div>
