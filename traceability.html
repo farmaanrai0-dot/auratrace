@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AuraTrace | Live Herb Batch-Traceability</title>
+    <meta
+      name="description"
+      content="Track AuraTrace herb batches from cultivation to certification with live traceability records and batch lookup."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=202607242000" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+      <div class="brand-block">
+        <div class="brand-mark">A</div>
+        <div>
+          <p class="eyebrow">AURA TRACE</p>
+          <h1>AuraTrace</h1>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
+        <nav class="nav-links" id="site-nav" aria-label="Main navigation">
+          <a href="index.html">Home</a>
+          <a href="index.html#products">Shop</a>
+          <a href="index.html#diet-plans">Diet plans</a>
+          <a href="telehealth.html">Consultation</a>
+          <a class="active" href="traceability.html">Traceability</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Toggle colour theme">Light mode</button>
+      </div>
+    </header>
+
+    <main id="main-content" class="page-shell">
+      <section class="intro-card">
+        <p class="eyebrow">LIVE HERB TRACEABILITY</p>
+        <h2>Observe every step from cultivation to certification.</h2>
+        <p>
+          Our records reflect what matters most: origin, handling, and laboratory assurance. Look up a batch code from your product label or review the current live batch snapshot below.
+        </p>
+      </section>
+
+      <form id="batch-lookup-form" class="batch-lookup-form">
+        <label>
+          Batch or SKU code
+          <input name="batchCode" type="text" placeholder="Example: AUR-204 or AT-ASH-1014" required />
+        </label>
+        <button type="submit" class="btn btn-primary">Look up batch</button>
+        <div id="batch-result" class="batch-result empty" aria-live="polite">Enter a batch code to view traceability details.</div>
+      </form>
+
+      <section class="traceability-grid" aria-label="Current live batch snapshot">
+        <article class="trace-card">
+          <p class="eyebrow">Current batch</p>
+          <h3>AUR-204</h3>
+          <p>Harvested: 14 July 2026</p>
+          <p>Location: Sussex, UK</p>
+          <p>Status: Cleared for release</p>
+        </article>
+        <article class="trace-card">
+          <p class="eyebrow">Testing window</p>
+          <h3>24h assay cycle</h3>
+          <p>Heavy metal screen complete</p>
+          <p>Microbial review complete</p>
+          <p>Certificate issued today</p>
+        </article>
+        <article class="trace-card">
+          <p class="eyebrow">Audit trail</p>
+          <ul>
+            <li>Origin verified</li>
+            <li>Chain-of-custody intact</li>
+            <li>Storage temperature logged</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div>
+          <p class="eyebrow">AURA TRACE</p>
+          <p>Premium botanical storefront with clear guidance, direct support, and transparent ordering.</p>
+        </div>
+        <div>
+          <h4>Explore</h4>
+          <div class="footer-links">
+            <a href="index.html#products">Shop products</a>
+            <a href="index.html#diet-plans">Diet plans</a>
+            <a href="telehealth.html">Consultation</a>
+          </div>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <div class="footer-links">
+            <a href="https://wa.me/447575630141" target="_blank" rel="noreferrer">WhatsApp support</a>
+            <a href="mailto:hello@auratrace.co.uk">hello@auratrace.co.uk</a>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">© 2026 AuraTrace. General wellness guidance only — not medical advice.</p>
+    </footer>
+
+    <script src="site-config.js?v=202607242000"></script>
+    <script src="shared.js?v=202607242000"></script>
+  </body>
+</html>

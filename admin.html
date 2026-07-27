@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AuraTrace Admin Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; }
+    .header { background: #2d5a27; color: white; padding: 20px; }
+    .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .stat-card h3 { color: #666; font-size: 14px; }
+    .stat-card .value { font-size: 32px; font-weight: bold; color: #2d5a27; }
+    .orders-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filters select, .filters button { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .filters button { background: #2d5a27; color: white; cursor: pointer; }
+    .order-table { width: 100%; border-collapse: collapse; }
+    .order-table th, .order-table td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    .order-table th { background: #f9f9f9; }
+    .status-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+    .status-paid { background: #e8f5e9; color: #2d5a27; }
+    .status-processing { background: #fff3e0; color: #e65100; }
+    .status-shipped { background: #e3f2fd; color: #1565c0; }
+    .status-delivered { background: #e8f5e9; color: #2d5a27; }
+    .status-cancelled { background: #ffebee; color: #c62828; }
+    .action-buttons { display: flex; gap: 5px; }
+    .action-buttons button { padding: 5px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-view { background: #2196f3; color: white; }
+    .btn-track { background: #ff9800; color: white; }
+    .btn-status { background: #4caf50; color: white; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    .modal-content { background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 600px; border-radius: 8px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .close { font-size: 28px; cursor: pointer; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    .form-group textarea { height: 100px; resize: vertical; }
+    .submit-btn { background: #2d5a27; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AuraTrace Admin Dashboard</h1>
+    <p>Order Management System</p>
+  </div>
+  
+  <div class="container">
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Total Orders</h3>
+        <div class="value" id="total-orders">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Pending</h3>
+        <div class="value" id="pending-orders">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Shipped</h3>
+        <div class="value" id="shipped-orders">0</div>
+      </div>
+      <div class="stat-card">
+        <h3>Total Revenue</h3>
+        <div class="value" id="total-revenue">£0</div>
+      </div>
+    </div>
+    
+    <div class="orders-section">
+      <h2>Orders</h2>
+      <div class="filters">
+        <select id="status-filter">
+          <option value="">All Status</option>
+          <option value="paid">Paid</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button onclick="loadOrders()">Filter</button>
+        <button onclick="loadOrders()">Refresh</button>
+      </div>
+      
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="orders-body">
+          <tr><td colspan="7">Loading orders...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Order Details Modal -->
+  <div id="order-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Order Details</h2>
+        <span class="close" onclick="closeModal('order-modal')">&times;</span>
+      </div>
+      <div id="order-details"></div>
+    </div>
+  </div>
+  
+  <!-- Tracking Modal -->
+  <div id="tracking-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Tracking Information</h2>
+        <span class="close" onclick="closeModal('tracking-modal')">&times;</span>
+      </div>
+      <form id="tracking-form">
+        <input type="hidden" id="tracking-order-id">
+        <div class="form-group">
+          <label>Carrier</label>
+          <select id="tracking-carrier" required>
+            <option value="">Select Carrier</option>
+            <option value="Royal Mail">Royal Mail</option>
+            <option value="DPD">DPD</option>
+            <option value="Hermes">Hermes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tracking Number</label>
+          <input type="text" id="tracking-number" required>
+        </div>
+        <div class="form-group">
+          <label>Service</label>
+          <select id="tracking-service">
+            <option value="standard">Standard</option>
+            <option value="next-day">Next Day</option>
+            <option value="tracked-24">Tracked 24</option>
+            <option value="tracked-48">Tracked 48</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="tracking-notes"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Add Tracking</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Status Modal -->
+  <div id="status-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Update Order Status</h2>
+        <span class="close" onclick="closeModal('status-modal')">&times;</span>
+      </div>
+      <form id="status-form">
+        <input type="hidden" id="status-order-id">
+        <div class="form-group">
+          <label>Status</label>
+          <select id="order-status" required>
+            <option value="paid">Paid</option>
+            <option value="processing">Processing</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="status-notes"></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Update Status</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Shipping Label Modal -->
+  <div id="shipping-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Generate Shipping Label</h2>
+        <span class="close" onclick="closeModal('shipping-modal')">&times;</span>
+      </div>
+      <form id="shipping-form">
+        <input type="hidden" id="shipping-order-id">
+        <div class="form-group">
+          <label>Carrier</label>
+          <select id="shipping-carrier" required>
+            <option value="">Select Carrier</option>
+            <option value="royalMail">Royal Mail</option>
+            <option value="dpd">DPD</option>
+            <option value="hermes">Hermes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Service</label>
+          <select id="shipping-service" required>
+            <option value="">Select Service</option>
+            <option value="1st-class">1st Class</option>
+            <option value="2nd-class">2nd Class</option>
+            <option value="tracked-24">Tracked 24</option>
+            <option value="tracked-48">Tracked 48</option>
+            <option value="next-day">Next Day</option>
+          </select>
+        </div>
+        <button type="submit" class="submit-btn">Generate Label</button>
+      </form>
+      <div id="shipping-label-output" style="margin-top: 20px; white-space: pre-wrap; font-family: monospace; background: #f9f9f9; padding: 15px; border-radius: 4px; display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    let orders = [];
+    
+    async function loadOrders() {
+      const statusFilter = document.getElementById('status-filter').value;
+      let url = '/orders';
+      if (statusFilter) {
+        url += `?status=${statusFilter}`;
+      }
+      
+      try {
+        const response = await fetch(url);
+        orders = await response.json();
+        renderOrders();
+        updateStats();
+      } catch (error) {
+        console.error('Error loading orders:', error);
+      }
+    }
+    
+    function renderOrders() {
+      const tbody = document.getElementById('orders-body');
+      if (orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">No orders found</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = orders.map(order => `
+        <tr>
+          <td>#${order.id}</td>
+          <td>${order.customerName}</td>
+          <td>${order.customerEmail}</td>
+          <td>£${order.total.toFixed(2)}</td>
+          <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+          <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-view" onclick="viewOrder('${order.id}')">View</button>
+              <button class="btn-track" onclick="openTrackingModal('${order.id}')">Track</button>
+              <button class="btn-status" onclick="openStatusModal('${order.id}')">Status</button>
+              <button class="btn-view" onclick="openShippingModal('${order.id}')">Label</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    function updateStats() {
+      document.getElementById('total-orders').textContent = orders.length;
+      document.getElementById('pending-orders').textContent = orders.filter(o => o.status === 'paid' || o.status === 'processing').length;
+      document.getElementById('shipped-orders').textContent = orders.filter(o => o.status === 'shipped').length;
+      document.getElementById('total-revenue').textContent = '£' + orders.reduce((sum, o) => sum + o.total, 0).toFixed(2);
+    }
+    
+    function viewOrder(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      const details = document.getElementById('order-details');
+      details.innerHTML = `
+        <p><strong>Order ID:</strong> #${order.id}</p>
+        <p><strong>Customer:</strong> ${order.customerName}</p>
+        <p><strong>Email:</strong> ${order.customerEmail}</p>
+        <p><strong>Total:</strong> £${order.total.toFixed(2)}</p>
+        <p><strong>Status:</strong> ${order.status}</p>
+        <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString()}</p>
+        <p><strong>Delivery Address:</strong><br>${order.deliveryAddress}</p>
+        <h3>Items:</h3>
+        <ul>
+          ${order.items.map(item => `<li>${item.name} - £${item.price} x ${item.quantity}</li>`).join('')}
+        </ul>
+        ${order.trackingNumber ? `<p><strong>Tracking:</strong> ${order.trackingNumber} (${order.carrier})</p>` : ''}
+      `;
+      
+      document.getElementById('order-modal').style.display = 'block';
+    }
+    
+    function openTrackingModal(orderId) {
+      document.getElementById('tracking-order-id').value = orderId;
+      document.getElementById('tracking-modal').style.display = 'block';
+    }
+    
+    function openStatusModal(orderId) {
+      document.getElementById('status-order-id').value = orderId;
+      document.getElementById('status-modal').style.display = 'block';
+    }
+    
+    function openShippingModal(orderId) {
+      document.getElementById('shipping-order-id').value = orderId;
+      document.getElementById('shipping-modal').style.display = 'block';
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    // Tracking form submission
+    document.getElementById('tracking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('tracking-order-id').value;
+      const carrier = document.getElementById('tracking-carrier').value;
+      const trackingNumber = document.getElementById('tracking-number').value;
+      const service = document.getElementById('tracking-service').value;
+      const notes = document.getElementById('tracking-notes').value;
+      
+      try {
+        const response = await fetch(`/orders/${orderId}/tracking`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ carrier, trackingNumber, service, notes })
+        });
+        
+        if (response.ok) {
+          alert('Tracking information added successfully!');
+          closeModal('tracking-modal');
+          loadOrders();
+        } else {
+          alert('Error adding tracking information');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error adding tracking information');
+      }
+    });
+    
+    // Status form submission
+    document.getElementById('status-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('status-order-id').value;
+      const status = document.getElementById('order-status').value;
+      const notes = document.getElementById('status-notes').value;
+      
+      try {
+        const response = await fetch(`/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status, notes })
+        });
+        
+        if (response.ok) {
+          alert('Order status updated successfully!');
+          closeModal('status-modal');
+          loadOrders();
+        } else {
+          alert('Error updating order status');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating order status');
+      }
+    });
+    
+    // Shipping label form submission
+    document.getElementById('shipping-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = document.getElementById('shipping-order-id').value;
+      const carrier = document.getElementById('shipping-carrier').value;
+      const service = document.getElementById('shipping-service').value;
+      
+      try {
+        const response = await fetch(`/orders/${orderId}/shipping-label`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ carrier, service })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('shipping-label-output').textContent = data.labelPrintout;
+          document.getElementById('shipping-label-output').style.display = 'block';
+        } else {
+          alert('Error generating shipping label');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error generating shipping label');
+      }
+    });
+    
+    // Load orders on page load
+    loadOrders();
+    
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

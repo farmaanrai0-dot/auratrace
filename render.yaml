@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: auratrace-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: STRIPE_SECRET_KEY
+        value: your_stripe_secret_key_here
+      - key: EMAIL_USER
+        value: farmaanrai0@gmail.com
+      - key: EMAIL_PASS
+        value: your_gmail_app_password_here
+      - key: PORT
+        value: 3000
