@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraTrace - 3D Product Visualizer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-color: #FCFCFC;
+      --text-main: #202020;
+      --text-sub: #606060;
+      --leaf-green-medium: #5c7e4c;
+      --leaf-green-dark: #3a552f;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      font-family: 'Montserrat', sans-serif;
+      padding: 60px 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--text-main);
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .header p {
+      color: var(--text-sub);
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+      perspective: 1000px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px) rotateX(5deg);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+
+    .product-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--leaf-green-dark), var(--leaf-green-medium));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .product-card:hover::before {
+      opacity: 1;
+    }
+
+    /* 3D Bottle Container */
+    .bottle-container {
+      width: 120px;
+      height: 280px;
+      position: relative;
+      margin: 20px 0;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .bottle-container {
+      transform: rotateY(15deg);
+    }
+
+    /* Bottle Body */
+    .bottle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 50%, #e8e8e8 100%);
+      border-radius: 8px 8px 12px 12px;
+      box-shadow: 
+        inset -15px 0 30px rgba(0,0,0,0.05),
+        inset 15px 0 30px rgba(255,255,255,0.8),
+        0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    /* Bottle Cap */
+    .bottle-cap {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 30px;
+      background: linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 100%);
+      border-radius: 4px 4px 0 0;
+      box-shadow: 
+        inset -3px 0 8px rgba(0,0,0,0.1),
+        inset 3px 0 8px rgba(255,255,255,0.5),
+        0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Cap Ribs */
+    .bottle-cap::before {
+      content: '';
+      position: absolute;
+      top: 5px;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.05) 3px,
+        rgba(0,0,0,0.05) 4px
+      );
+      border-radius: 2px;
+    }
+
+    /* Label Container */
+    .bottle-label {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 140px;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    /* Label Content */
+    .label-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 5px;
+      text-align: center;
+    }
+
+    .label-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      text-transform: uppercase;
+    }
+
+    .label-product {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.1;
+      margin: 3px 0;
+    }
+
+    .label-divider {
+      width: 3px;
+      height: 3px;
+      background-color: var(--leaf-green-dark);
+      border-radius: 50%;
+      margin: 2px 0;
+    }
+
+    .label-category {
+      font-size: 6px;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    /* Mini SVG Leaf */
+    .label-leaf {
+      width: 25px;
+      height: 30px;
+      margin: 3px 0;
+    }
+
+    .label-footer {
+      font-size: 5px;
+      letter-spacing: 0.3px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      border-top: 1px solid #e0e0e0;
+      width: 100%;
+      padding-top: 3px;
+    }
+
+    /* Product Info */
+    .product-info {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .product-category {
+      font-size: 12px;
+      color: var(--text-sub);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .product-price {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--leaf-green-dark);
+      margin-top: 10px;
+    }
+
+    /* Ambient Lighting Effect */
+    .lighting {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%);
+      pointer-events: none;
+      border-radius: 12px;
+    }
+
+    /* Reflection */
+    .bottle::after {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 15%;
+      width: 20%;
+      height: 60%;
+      background: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, transparent 100%);
+      border-radius: 50%;
+      filter: blur(2px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>AuraTrace Premium Collection</h1>
+    <p>Botanical Healthcare • Pure & Potent</p>
+  </div>
+
+  <div class="product-grid" id="product-grid"></div>
+
+  <script src="site-config.js"></script>
+  <script>
+    const products = window.auraSiteConfig.defaultProducts.filter(p => p.id < 2000);
+    
+    const productDescriptions = {
+      1001: "Himalayan Blend",
+      1007: "Classical Formulation",
+      1011: "Cardio Health",
+      1014: "Stress Support",
+      1017: "Immunity Combo",
+      1018: "Cognitive Wellness",
+      1020: "Natural Shield",
+      1022: "Vitality Boost",
+      1023: "Holistic Nourishment",
+      1024: "Metabolic Balance",
+      1025: "Weight Management",
+      1026: "Ayurvedic Blend",
+      1027: "Glucose Care",
+      1029: "Pain Relief",
+      1030: "Therapeutic Extract",
+      1032: "Women's Health",
+      1033: "Immunity Booster"
+    };
+
+    const leafSVG = `
+      <svg class="label-leaf" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 110 C48 90 51 60 50 15" stroke="#3a552f" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M50 95 C38 90 28 80 32 68 C38 60 48 78 50 95 Z" fill="#5c7e4c" opacity="0.85"/>
+        <path d="M50 72 C32 68 20 55 24 40 C35 35 47 55 50 72 Z" fill="#5c7e4c"/>
+        <path d="M50 48 C36 43 28 32 30 22 C38 18 48 35 50 48 Z" fill="#5c7e4c" opacity="0.7"/>
+        <path d="M50 85 C62 82 72 75 70 65 C65 58 52 70 50 85 Z" fill="#3a552f"/>
+        <path d="M50 60 C65 58 75 48 72 35 C62 30 52 45 50 60 Z" fill="#5c7e4c"/>
+        <path d="M50 35 C62 33 68 25 65 15 C58 10 52 20 50 35 Z" fill="#3a552f" opacity="0.9"/>
+      </svg>
+    `;
+
+    const grid = document.getElementById('product-grid');
+
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      
+      const productName = product.name.replace('AuraTrace ', '');
+      const description = productDescriptions[product.id] || product.category;
+      
+      card.innerHTML = `
+        <div class="lighting"></div>
+        <div class="bottle-container">
+          <div class="bottle-cap"></div>
+          <div class="bottle">
+            <div class="bottle-label">
+              <div class="label-content">
+                <div>
+                  <div class="label-brand">AuraTrace</div>
+                  <div class="label-product">${productName}</div>
+                  <div class="label-divider"></div>
+                  <div class="label-category">${description}</div>
+                </div>
+                ${leafSVG}
+                <div class="label-footer">Pure & Potent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="product-info">
+          <div class="product-name">${productName}</div>
+          <div class="product-category">${product.category}</div>
+          <div class="product-price">£${product.price.toFixed(2)}</div>
+        </div>
+      `;
+      
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>

@@ -1452,82 +1452,74 @@ function renderProducts() {
     return;
   }
 
+  const productDescriptions = {
+    1001: "Himalayan Blend",
+    1007: "Classical Formulation",
+    1011: "Cardio Health",
+    1014: "Stress Support",
+    1017: "Immunity Combo",
+    1018: "Cognitive Wellness",
+    1020: "Natural Shield",
+    1022: "Vitality Boost",
+    1023: "Holistic Nourishment",
+    1024: "Metabolic Balance",
+    1025: "Weight Management",
+    1026: "Ayurvedic Blend",
+    1027: "Glucose Care",
+    1029: "Pain Relief",
+    1030: "Therapeutic Extract",
+    1032: "Women's Health",
+    1033: "Immunity Booster"
+  };
+
+  const leafSVG = `
+    <svg class="label-leaf" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 110 C48 90 51 60 50 15" stroke="#3a552f" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M50 95 C38 90 28 80 32 68 C38 60 48 78 50 95 Z" fill="#5c7e4c" opacity="0.85"/>
+      <path d="M50 72 C32 68 20 55 24 40 C35 35 47 55 50 72 Z" fill="#5c7e4c"/>
+      <path d="M50 48 C36 43 28 32 30 22 C38 18 48 35 50 48 Z" fill="#5c7e4c" opacity="0.7"/>
+      <path d="M50 85 C62 82 72 75 70 65 C65 58 52 70 50 85 Z" fill="#3a552f"/>
+      <path d="M50 60 C65 58 75 48 72 35 C62 30 52 45 50 60 Z" fill="#5c7e4c"/>
+      <path d="M50 35 C62 33 68 25 65 15 C58 10 52 20 50 35 Z" fill="#3a552f" opacity="0.9"/>
+    </svg>
+  `;
+
   products.forEach((product) => {
-    const labelSeries = String(product.labelSeries || 'Botanical Standard Label').trim();
-    const benefits = Array.isArray(product.benefits) && product.benefits.length
-      ? product.benefits.slice(0, 2)
-      : ['Traditionally used in everyday wellness routines.', 'Use consistently as part of a balanced lifestyle.'];
-    const herbMeta = herbMetaForProduct(product);
-    const labelMeta = buildLabelMeta(product);
-    const productImageUrl = resolveProductImage(product);
-    const productFallbackImageUrl = bottleFallbackImageUrl(product);
-    const herbThumbUrl = String(herbMeta.image || '').trim() || herbThumbFallbackUrl(herbMeta.label);
-    const herbThumbFallback = herbThumbFallbackUrl(herbMeta.label);
+    const productName = product.name.replace('AuraTrace ', '');
+    const description = productDescriptions[product.id] || product.category;
+    
     const card = document.createElement('article');
     card.className = 'product-card';
     card.innerHTML = `
-      <img class="product-image" src="${productImageUrl}" data-fallback-src="${productFallbackImageUrl}" alt="${product.name}" loading="lazy" />
-      <div class="product-label" aria-label="AuraTrace custom label">
-        <div class="label-head">
-          <div class="label-brand-group">
-            <img class="label-herb-thumb" src="${herbThumbUrl}" data-fallback-src="${herbThumbFallback}" alt="${herbMeta.label} herb" loading="lazy" />
-            <p class="label-brand">AuraTrace</p>
+      <div class="bottle-container">
+        <div class="bottle-cap"></div>
+        <div class="bottle">
+          <div class="bottle-label">
+            <div class="label-content">
+              <div>
+                <div class="label-brand">AuraTrace</div>
+                <div class="label-product">${productName}</div>
+                <div class="label-divider"></div>
+                <div class="label-category">${description}</div>
+              </div>
+              ${leafSVG}
+              <div class="label-footer">Pure & Potent</div>
+            </div>
           </div>
-          <span class="label-badge">Custom label</span>
         </div>
-        <p class="label-series">${labelSeries}</p>
-        <div class="label-specs">
-          <span>SKU: ${labelMeta.sku}</span>
-          <span>Batch: ${labelMeta.batch}</span>
-          <span>Net qty: ${labelMeta.netQuantity}</span>
-          <span>MFG: ${labelMeta.mfg}</span>
-          <span>Shelf life: ${labelMeta.shelfLife}</span>
-        </div>
-        <p class="label-use">${labelMeta.usage}</p>
-        <p class="label-storage">${labelMeta.storage}</p>
-        <ul class="label-benefits">
-          <li>${benefits[0] || ''}</li>
-          <li>${benefits[1] || ''}</li>
-        </ul>
       </div>
-      <div class="product-top">
-        <div>
-          <p class="eyebrow">${product.category}</p>
-          <h4>${product.name}</h4>
-        </div>
-        <span class="product-price">${currency(product.price)}</span>
+      
+      <div class="product-info">
+        <div class="product-name">${productName}</div>
+        <div class="product-category">${product.category}</div>
+        <div class="product-price">${currency(product.price)}</div>
       </div>
-      <p>${product.description}</p>
-      <div class="tag-row">
-        <span>Premium</span>
-        <span>Shop ready</span>
-        <span>Cart enabled</span>
-      </div>
+      
       <div class="product-actions">
         <button class="btn btn-primary" type="button" data-add-id="${product.id}">Add to cart</button>
         <a class="btn btn-secondary" href="https://wa.me/${config.whatsappNumber || '447575630141'}?text=${encodeURIComponent(`Hello AuraTrace, I have a question about ${product.name}.`) }" target="_blank" rel="noreferrer">Ask about this</a>
       </div>
     `;
-
-    const productImageElement = card.querySelector('.product-image');
-    if (productImageElement) {
-      productImageElement.addEventListener('error', () => {
-        const fallbackSrc = productImageElement.getAttribute('data-fallback-src');
-        if (fallbackSrc && productImageElement.src !== fallbackSrc) {
-          productImageElement.src = fallbackSrc;
-        }
-      });
-    }
-
-    const herbThumbElement = card.querySelector('.label-herb-thumb');
-    if (herbThumbElement) {
-      herbThumbElement.addEventListener('error', () => {
-        const fallbackSrc = herbThumbElement.getAttribute('data-fallback-src');
-        if (fallbackSrc && herbThumbElement.src !== fallbackSrc) {
-          herbThumbElement.src = fallbackSrc;
-        }
-      });
-    }
 
     productList.appendChild(card);
   });

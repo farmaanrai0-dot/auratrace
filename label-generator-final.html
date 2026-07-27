@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraTrace - Aesthetic Product Labels</title>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    /* Aesthetic serif for brand/headers, clean sans-serif for details */
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-color: #ffffff; /* Clean white as requested */
+      --text-main: #202020;
+      --text-sub: #606060;
+      --border-color: #e0e0e0;
+      /* Define organic leaf colors from your image */
+      --leaf-green-medium: #5c7e4c; /* Base leaf green */
+      --leaf-green-dark: #3a552f;   /* Stem/shadow green */
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #f4f4f4; /* Light contrast background for grid */
+      font-family: 'Montserrat', sans-serif;
+      padding: 50px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      color: var(--text-main);
+      margin-bottom: 15px;
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .download-btn {
+      background-color: var(--leaf-green-dark);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .download-btn:hover {
+      background-color: var(--leaf-green-medium);
+    }
+
+    /* Standardized Label Card */
+    .label-card {
+      width: 320px;
+      height: 480px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      border-radius: 4px;
+    }
+
+    /* Header Section */
+    .brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    .brand-tagline {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      margin-top: -3px;
+    }
+
+    /* Product Section */
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .product-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.2;
+      letter-spacing: 0.5px;
+    }
+
+    .divider-dot {
+      width: 4px;
+      height: 4px;
+      background-color: var(--leaf-green-dark);
+      border-radius: 50%;
+      margin: 5px 0;
+    }
+
+    .product-details {
+      font-size: 11px;
+      letter-spacing: 1.2px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    /* Aesthetic Botanical SVG Artwork */
+    .botanical-art {
+      width: 130px;
+      height: 150px;
+      margin: 10px 0;
+    }
+
+    /* Footer Meta */
+    .label-footer {
+      font-size: 9px;
+      letter-spacing: 0.8px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      border-top: 1px solid var(--border-color);
+      width: 100%;
+      padding-top: 15px;
+    }
+
+    .labels-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .label-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .individual-download {
+      background-color: var(--leaf-green-medium);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .individual-download:hover {
+      background-color: var(--leaf-green-dark);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>AuraTrace Premium Labels</h1>
+    <button class="download-btn" onclick="downloadAllLabels()">Download All Labels (4K)</button>
+  </div>
+
+  <div id="labels-grid" class="labels-grid"></div>
+
+  <script>
+    const products = [
+      { name: "Suraksha Herbal Tea", description: "Himalayan Blend" },
+      { name: "Apamarga Kshara Tablets", description: "Classical Formulation" },
+      { name: "Arjuna Tablets", description: "Cardio Health" },
+      { name: "Ashwagandha Tablets", description: "Stress Support" },
+      { name: "Ashwagandha + Ayush Kwath", description: "Immunity Combo Pack" },
+      { name: "Brahmi Tablets", description: "Cognitive Wellness" },
+      { name: "Giloy Tablets", description: "Natural Shield" },
+      { name: "Power Plus Tablets", description: "Vitality Boost" },
+      { name: "Pustihar Tablets", description: "Holistic Nourishment" },
+      { name: "Sugar Fit Tablets", description: "Metabolic Balance" },
+      { name: "Slim Rattan Tablets", description: "Weight Management" },
+      { name: "Slim Rattan Granules", description: "Ayurvedic Blend" },
+      { name: "Madhumay Rakshak Granules", description: "Glucose Care" },
+      { name: "Dard Rakshak Tablets", description: "Pain Relief" },
+      { name: "Dard Rakshak Oil", description: "Therapeutic Extract" },
+      { name: "Gynae Plus Tablets", description: "Women's Health" },
+      { name: "Ayush Kwath", description: "Immunity Booster" }
+    ];
+
+    /* This SVG is complex to mimic the organic feel of image_0.png using distinct leaf elements and varying opacity */
+    const botanicalSVG = `
+      <svg class="botanical-art" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Stem -->
+        <path d="M50 110 C48 90 51 60 50 15" stroke="#3a552f" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+        
+        <!-- Left Organic Leaves - Varied Shapes and Fills -->
+        <path d="M50 95 C38 90 28 80 32 68 C38 60 48 78 50 95 Z" fill="#5c7e4c" opacity="0.85"/>
+        <path d="M50 72 C32 68 20 55 24 40 C35 35 47 55 50 72 Z" fill="#5c7e4c"/>
+        <path d="M50 48 C36 43 28 32 30 22 C38 18 48 35 50 48 Z" fill="#5c7e4c" opacity="0.7"/>
+
+        <!-- Right Organic Leaves - Varied Shapes and Fills -->
+        <path d="M50 85 C62 82 72 75 70 65 C65 58 52 70 50 85 Z" fill="#3a552f"/>
+        <path d="M50 60 C65 58 75 48 72 35 C62 30 52 45 50 60 Z" fill="#5c7e4c"/>
+        <path d="M50 35 C62 33 68 25 65 15 C58 10 52 20 50 35 Z" fill="#3a552f" opacity="0.9"/>
+      </svg>
+    `;
+
+    const grid = document.getElementById('labels-grid');
+
+    products.forEach((product, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'label-wrapper';
+      
+      const card = document.createElement('div');
+      card.className = 'label-card';
+      card.id = `label-${index}`;
+      card.innerHTML = `
+        <div>
+          <div class="brand-title">AuraTrace</div>
+          <div class="brand-tagline">Ayurvedic Wellness</div>
+        </div>
+        
+        <div class="product-info">
+          <div class="product-name">${product.name}</div>
+          <div class="divider-dot"></div>
+          <div class="product-details">${product.description}</div>
+        </div>
+
+        ${botanicalSVG}
+
+        <div class="label-footer">
+          Clinically Guided • Premium Extracts • Pure & Potent
+        </div>
+      `;
+      
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'individual-download';
+      downloadBtn.textContent = 'Download Label';
+      downloadBtn.onclick = () => downloadLabel(index, product.name);
+      
+      wrapper.appendChild(card);
+      wrapper.appendChild(downloadBtn);
+      grid.appendChild(wrapper);
+    });
+
+    async function downloadLabel(index, productName) {
+      const element = document.getElementById(`label-${index}`);
+      const scale = 4; // 4K resolution (4x scale)
+      
+      try {
+        const canvas = await html2canvas(element, {
+          scale: scale,
+          backgroundColor: '#ffffff',
+          logging: false
+        });
+        
+        const link = document.createElement('a');
+        link.download = `${productName.replace(/\s+/g, '_')}_label_4K.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+      } catch (error) {
+        console.error('Error generating label:', error);
+        alert('Error generating label. Please try again.');
+      }
+    }
+
+    async function downloadAllLabels() {
+      for (let i = 0; i < products.length; i++) {
+        await downloadLabel(i, products[i].name);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between downloads
+      }
+    }
+  </script>
+</body>
+</html>
