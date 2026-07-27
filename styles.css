@@ -116,7 +116,7 @@ pre { white-space: pre-wrap; }
 
 .label-brand {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
+  font-size: 36px;
   font-weight: 700;
   letter-spacing: 3px;
   color: #202020;
@@ -126,7 +126,7 @@ pre { white-space: pre-wrap; }
 
 .label-product {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 600;
   color: #202020;
   line-height: 1.2;
@@ -134,28 +134,28 @@ pre { white-space: pre-wrap; }
 }
 
 .label-divider {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
   background-color: #3a552f;
   border-radius: 50%;
-  margin: 5px 0;
+  margin: 8px 0;
 }
 
 .label-category {
-  font-size: 11px;
+  font-size: 16px;
   letter-spacing: 1.2px;
   color: #606060;
   text-transform: uppercase;
 }
 
 .label-leaf {
-  width: 130px;
-  height: 150px;
-  margin: 10px 0;
+  width: 180px;
+  height: 200px;
+  margin: 15px 0;
 }
 
 .label-footer {
-  font-size: 9px;
+  font-size: 14px;
   letter-spacing: 0.8px;
   color: #606060;
   text-transform: uppercase;
