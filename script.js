@@ -1490,24 +1490,16 @@ function renderProducts() {
     
     const card = document.createElement('article');
     card.className = 'product-card';
+    card.setAttribute('data-product-id', product.id);
     
     card.innerHTML = `
-      <div class="bottle-container">
-        <div class="bottle-cap"></div>
-        <div class="bottle">
-          <div class="bottle-label">
-            <div class="label-content">
-              <div>
-                <div class="label-brand">AURATRACE</div>
-                <div class="label-product">${productName}</div>
-                <div class="label-divider"></div>
-                <div class="label-category">${description}</div>
-              </div>
-              ${leafSVG}
-              <div class="label-footer">AuraTrace Labs • UK</div>
-            </div>
-          </div>
-        </div>
+      <div class="product-label-image" onclick="showProductModal(${product.id})">
+        <div class="label-brand">AURATRACE</div>
+        <div class="label-product">${productName}</div>
+        <div class="label-divider"></div>
+        <div class="label-category">${description}</div>
+        ${leafSVG}
+        <div class="label-footer">AuraTrace Labs • UK</div>
       </div>
       
       <div class="product-info">
@@ -1525,6 +1517,62 @@ function renderProducts() {
     productList.appendChild(card);
   });
 }
+
+// Product Modal Functions
+let currentProductId = null;
+
+function showProductModal(productId) {
+  const product = products.find(p => p.id === productId);
+  if (!product) return;
+  
+  currentProductId = productId;
+  
+  document.getElementById('modal-product-name').textContent = product.name;
+  document.getElementById('modal-product-category').textContent = product.category;
+  document.getElementById('modal-product-description').textContent = product.description || 'Premium botanical supplement for your wellness routine.';
+  document.getElementById('modal-product-price').textContent = currency(product.price);
+  document.getElementById('modal-quantity').value = 1;
+  
+  const addCartBtn = document.getElementById('modal-add-cart');
+  addCartBtn.setAttribute('data-add-id', productId);
+  addCartBtn.onclick = () => {
+    const quantity = parseInt(document.getElementById('modal-quantity').value) || 1;
+    for (let i = 0; i < quantity; i++) {
+      addToCart(productId);
+    }
+    closeProductModal();
+  };
+  
+  const whatsappLink = document.getElementById('modal-whatsapp');
+  whatsappLink.href = `https://wa.me/${config.whatsappNumber || '447575630141'}?text=${encodeURIComponent(`Hello AuraTrace, I have a question about ${product.name}.`)}`;
+  
+  document.getElementById('product-modal').classList.add('active');
+}
+
+function closeProductModal() {
+  document.getElementById('product-modal').classList.remove('active');
+  currentProductId = null;
+}
+
+function increaseQuantity() {
+  const input = document.getElementById('modal-quantity');
+  input.value = parseInt(input.value) + 1;
+}
+
+function decreaseQuantity() {
+  const input = document.getElementById('modal-quantity');
+  if (parseInt(input.value) > 1) {
+    input.value = parseInt(input.value) - 1;
+  }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('product-modal');
+  if (e.target === modal) {
+    closeProductModal();
+  }
+});
 
 function readFileAsDataUrl(file) {
   return new Promise((resolve, reject) => {

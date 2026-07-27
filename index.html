@@ -697,6 +697,31 @@
       <p class="footer-note">© 2026 AuraTrace. General wellness guidance only — not medical advice.</p>
     </footer>
 
+    <!-- Product Modal -->
+    <div id="product-modal" class="product-modal">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeProductModal()">&times;</button>
+        <h2 class="modal-product-name" id="modal-product-name"></h2>
+        <p class="modal-product-category" id="modal-product-category"></p>
+        <p class="modal-product-description" id="modal-product-description"></p>
+        <p class="modal-product-price" id="modal-product-price"></p>
+        
+        <div class="modal-quantity-section">
+          <p class="modal-quantity-label">Quantity:</p>
+          <div class="modal-quantity-selector">
+            <button class="modal-quantity-btn" onclick="decreaseQuantity()">-</button>
+            <input type="number" class="modal-quantity-input" id="modal-quantity" value="1" min="1">
+            <button class="modal-quantity-btn" onclick="increaseQuantity()">+</button>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="modal-add-cart" id="modal-add-cart">Add to Cart</button>
+          <a class="modal-whatsapp" id="modal-whatsapp" target="_blank" rel="noreferrer">Ask about this</a>
+        </div>
+      </div>
+    </div>
+
     <script src="https://js.stripe.com/v3/"></script>
     <script src="site-config.js?v=202607242000"></script>
     <script src="script.js?v=202607242000"></script>
