@@ -36,7 +36,7 @@ const orders = [];
 
 // Admin credentials (hardcoded for site owner)
 const ADMIN_EMAIL = 'farmaanrai0@gmail.com';
-const ADMIN_PASSWORD = 'admin123'; // Change this to a strong password
+const ADMIN_PASSWORD = 'AuraTrace@Secure2026!'; // Strong password for production
 
 // Initialize admin account
 async function initializeAdmin() {
