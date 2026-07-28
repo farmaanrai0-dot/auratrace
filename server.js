@@ -3,6 +3,8 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 const { generateShippingLabelData, generateLabelPrintout } = require('./shipping-helper');
 
 const app = express();
@@ -20,8 +22,157 @@ const transporter = nodemailer.createTransport({
 app.use(express.json());
 app.use(express.static('.'));
 
-// Store orders in memory (in production, use a database)
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'auratrace-secret-key-2026',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
+// Store data in memory (in production, use a database)
+const users = [];
 const orders = [];
+
+// Admin credentials (hardcoded for site owner)
+const ADMIN_EMAIL = 'farmaanrai0@gmail.com';
+const ADMIN_PASSWORD = 'admin123'; // Change this to a strong password
+
+// Initialize admin account
+async function initializeAdmin() {
+  const existingAdmin = users.find(u => u.email === ADMIN_EMAIL);
+  if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+    users.push({
+      id: 'admin-001',
+      email: ADMIN_EMAIL,
+      password: hashedPassword,
+      name: 'AuraTrace Admin',
+      isAdmin: true,
+      createdAt: new Date().toISOString()
+    });
+    console.log('Admin account initialized');
+  }
+}
+initializeAdmin();
+
+// Authentication middleware
+function requireAuth(req, res, next) {
+  if (req.session.userId) {
+    next();
+  } else {
+    res.status(401).json({ error: 'Authentication required' });
+  }
+}
+
+function requireAdmin(req, res, next) {
+  const user = users.find(u => u.id === req.session.userId);
+  if (user && user.isAdmin) {
+    next();
+  } else {
+    res.status(403).json({ error: 'Admin access required' });
+  }
+}
+
+// User registration
+app.post('/api/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+    
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters' });
+    }
+    
+    const existingUser = users.find(u => u.email === email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = {
+      id: 'user-' + Date.now(),
+      name,
+      email,
+      password: hashedPassword,
+      isAdmin: false,
+      createdAt: new Date().toISOString()
+    };
+    
+    users.push(user);
+    req.session.userId = user.id;
+    
+    res.json({ 
+      success: true, 
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } 
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+// User login
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+    
+    const user = users.find(u => u.email === email);
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    req.session.userId = user.id;
+    
+    res.json({ 
+      success: true, 
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } 
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// User logout
+app.post('/api/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'Logout failed' });
+    }
+    res.json({ success: true });
+  });
+});
+
+// Get current user
+app.get('/api/user', (req, res) => {
+  const user = users.find(u => u.id === req.session.userId);
+  if (user) {
+    res.json({ 
+      user: { id: user.id, name: user.name, email: user.email, isAdmin: user.isAdmin } 
+    });
+  } else {
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+});
+
+// Get user orders
+app.get('/api/user/orders', requireAuth, (req, res) => {
+  const userOrders = orders.filter(o => o.userId === req.session.userId);
+  res.json(userOrders);
+});
 
 app.post('/create-checkout-session', async (req, res) => {
   try {
@@ -30,6 +181,9 @@ app.post('/create-checkout-session', async (req, res) => {
     if (!items || items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty' });
     }
+
+    // Get user ID if logged in
+    const userId = req.session.userId || null;
 
     const lineItems = items.map((item) => ({
       price_data: {
@@ -52,6 +206,7 @@ app.post('/create-checkout-session', async (req, res) => {
       cancel_url: `${req.protocol}://${req.get('host')}/?canceled=true`,
       metadata: {
         order_id: Date.now().toString(),
+        user_id: userId || '',
         customer_name: customerName || '',
         customer_email: customerEmail || '',
         delivery_address: deliveryAddress || '',
@@ -99,6 +254,7 @@ async function handleOrderCompletion(session) {
   try {
     const order = {
       id: metadata.order_id,
+      userId: metadata.user_id || null,
       customerName: metadata.customer_name || customer_details?.name,
       customerEmail: metadata.customer_email || customer_email,
       deliveryAddress: metadata.delivery_address,
@@ -622,7 +778,9 @@ async function sendCancellationNotification(order) {
 }
 
 function getDietPlanContent(planId) {
-  // Map plan IDs to diet plan content from script.js
+  // Import diet plans from separate file
+  const dietPlans = require('./diet-plans.js') || {};
+  
   const planIdMap = {
     '2001': 'bmi-underweight-veg',
     '2002': 'bmi-underweight-nonveg',
@@ -641,14 +799,74 @@ function getDietPlanContent(planId) {
   const planKey = planIdMap[planId];
   if (!planKey) return '<p>Diet plan not found</p>';
 
-  // For now, return a placeholder. In production, you'd extract the actual content
-  // from the dietPlans object in script.js
+  const plan = dietPlans[planKey];
+  if (!plan) return `<p>Diet plan content not found for ${planKey}</p>`;
+
+  // Generate HTML meal plan
+  let mealPlanHTML = '';
+  if (plan.mealPlan) {
+    Object.keys(plan.mealPlan).forEach(day => {
+      const dayPlan = plan.mealPlan[day];
+      mealPlanHTML += `
+        <div style="margin: 15px 0; padding: 15px; background: #f5f5f5; border-radius: 5px;">
+          <h4 style="margin: 0 0 10px 0; color: #2d5a27;">${day.charAt(0).toUpperCase() + day.slice(1)}</h4>
+          <ul style="margin: 0; padding-left: 20px;">
+            <li><strong>Breakfast:</strong> ${dayPlan.breakfast}</li>
+            <li><strong>Mid-Morning:</strong> ${dayPlan.midMorning}</li>
+            <li><strong>Lunch:</strong> ${dayPlan.lunch}</li>
+            <li><strong>Evening Snack:</strong> ${dayPlan.eveningSnack}</li>
+            <li><strong>Dinner:</strong> ${dayPlan.dinner}</li>
+            ${dayPlan.beforeBed ? `<li><strong>Before Bed:</strong> ${dayPlan.beforeBed}</li>` : ''}
+            <li><strong>Calories:</strong> ${dayPlan.calories}</li>
+          </ul>
+        </div>
+      `;
+    });
+  }
+
+  // Generate shopping list HTML
+  let shoppingListHTML = '';
+  if (plan.shoppingList) {
+    shoppingListHTML += '<div style="margin: 15px 0; padding: 15px; background: #fff3e0; border-radius: 5px;"><h4 style="margin: 0 0 10px 0;">🛒 Shopping List</h4>';
+    Object.keys(plan.shoppingList).forEach(category => {
+      shoppingListHTML += `
+        <div style="margin: 10px 0;">
+          <strong>${category.charAt(0).toUpperCase() + category.slice(1)}:</strong>
+          <ul style="margin: 5px 0; padding-left: 20px;">
+            ${plan.shoppingList[category].map(item => `<li>${item}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    });
+    shoppingListHTML += '</div>';
+  }
+
   return `
-    <h3>Your 7-Day Diet Plan</h3>
-    <p><strong>Plan ID:</strong> ${planKey}</p>
-    <p>This is your personalized diet plan. Please save this email for reference.</p>
-    <p><strong>Important:</strong> These plans support healthy eating habits and are not a substitute for diagnosis or treatment. For pregnancy, kidney disease, insulin adjustments, severe hypertension, or complex conditions, consult a qualified clinician before following a new diet plan.</p>
-    <p><strong>Contact Support:</strong> hello@auratrace.co.uk or +447575630141</p>
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h3 style="color: #2d5a27;">📋 Your 7-Day Diet Plan</h3>
+      <p><strong>Plan:</strong> ${plan.name}</p>
+      <p><strong>Daily Calories:</strong> ${plan.dailyCalories}</p>
+      <p><strong>Duration:</strong> ${plan.duration}</p>
+      <p><strong>Source:</strong> ${plan.source}</p>
+      
+      <div style="margin: 20px 0;">
+        <h4 style="color: #2d5a27;">🍽️ Meal Plan</h4>
+        ${mealPlanHTML}
+      </div>
+      
+      ${shoppingListHTML}
+      
+      <div style="margin: 15px 0; padding: 15px; background: #e8f5e9; border-radius: 5px;">
+        <h4 style="margin: 0 0 10px 0;">💡 Important Guidelines</h4>
+        <ul style="margin: 0; padding-left: 20px;">
+          <li>Follow the meal timing suggestions for best results</li>
+          <li>Stay hydrated - drink at least 8 glasses of water daily</li>
+          <li>Adjust portions based on your hunger and energy levels</li>
+          <li>These plans support healthy eating habits</li>
+          <li>Consult a healthcare provider for medical conditions</li>
+        </ul>
+      </div>
+    </div>
   `;
 }
 
@@ -656,7 +874,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/orders', (req, res) => {
+app.get('/orders', requireAdmin, (req, res) => {
   res.json(orders);
 });
 
@@ -753,7 +971,7 @@ app.post('/orders/:id/shipping-label', (req, res) => {
   }
 });
 
-app.get('/admin', (req, res) => {
+app.get('/admin', requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 

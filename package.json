@@ -6,13 +6,24 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "setup-stripe": "node setup-stripe.js"
+    "setup-stripe": "node setup-stripe.js",
+    "app:sync": "npx cap sync android",
+    "app:open": "npx cap open android",
+    "app:build": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "bcrypt": "^5.1.0",
+    "dotenv": "^16.0.0",
     "express": "^4.18.2",
-    "stripe": "^14.0.0",
+    "express-session": "^1.17.3",
+    "jsonwebtoken": "^9.0.0",
     "nodemailer": "^6.9.0",
-    "dotenv": "^16.0.0"
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^4.8.0",
+    "@capacitor/cli": "^4.8.0",
+    "@capacitor/core": "^4.8.0"
   },
   "engines": {
     "node": ">=16.0.0"

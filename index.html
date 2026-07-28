@@ -52,13 +52,26 @@
           <a href="#herb-guide">Herb guide</a>
           <a href="#diet-plans">Diet plans</a>
           <a href="#products">Shop</a>
-          <a href="#cart-checkout">Cart</a>
           <a href="#support">Help</a>
           <a class="hidden-admin" data-admin-only href="#add-products">Add products</a>
           <a href="telehealth.html">Consultation</a>
-          <a href="/admin">Admin Dashboard</a>
+          <a id="nav-login" href="#auth-modal">Login</a>
+          <a id="nav-register" href="#auth-modal">Register</a>
+          <a id="nav-dashboard" href="#user-dashboard" class="hidden">My Account</a>
+          <a id="nav-admin" href="/admin" class="hidden-admin">Admin Dashboard</a>
+          <a id="nav-logout" href="#" class="hidden">Logout</a>
         </nav>
-        <button class="theme-toggle" type="button" aria-label="Toggle colour theme">Light mode</button>
+        <div class="header-icons">
+          <a id="header-cart" href="#cart-checkout" class="header-icon" aria-label="Shopping cart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+            <span id="cart-count" class="cart-count">0</span>
+          </a>
+          <button class="theme-toggle" type="button" aria-label="Toggle colour theme">Light mode</button>
+        </div>
       </div>
     </header>
 
@@ -408,6 +421,87 @@
           </div>
         </div>
       </div>
+
+      <!-- Authentication Modal -->
+      <div id="auth-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="auth-modal-title">
+        <div class="modal-overlay" aria-hidden="true"></div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 id="auth-modal-title">Sign In</h3>
+            <button class="modal-close" aria-label="Close modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="auth-tabs">
+              <button class="auth-tab active" data-tab="login">Login</button>
+              <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+              <label>
+                Email address
+                <input name="email" type="email" placeholder="name@example.com" required />
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" placeholder="Enter your password" required />
+              </label>
+              <button type="submit" class="btn btn-primary">Login</button>
+              <p id="login-error" class="auth-error"></p>
+            </form>
+            
+            <form id="register-form" class="auth-form hidden">
+              <label>
+                Full name
+                <input name="name" type="text" placeholder="Your full name" required />
+              </label>
+              <label>
+                Email address
+                <input name="email" type="email" placeholder="name@example.com" required />
+              </label>
+              <label>
+                Password
+                <input name="password" type="password" placeholder="Minimum 6 characters" required minlength="6" />
+              </label>
+              <label>
+                Confirm password
+                <input name="confirmPassword" type="password" placeholder="Confirm your password" required />
+              </label>
+              <button type="submit" class="btn btn-primary">Create Account</button>
+              <p id="register-error" class="auth-error"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Dashboard Section -->
+      <section class="section-card hidden" id="user-dashboard" aria-labelledby="user-dashboard-title">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="eyebrow">MY ACCOUNT</p>
+            <h3 id="user-dashboard-title">Your orders and diet plans</h3>
+          </div>
+          <p class="section-intro">View your purchase history and access your purchased diet plans.</p>
+        </div>
+
+        <div class="user-info-card">
+          <h4>Welcome back, <span id="user-name">User</span></h4>
+          <p>Email: <span id="user-email">user@example.com</span></p>
+        </div>
+
+        <div id="user-orders-container">
+          <h4>Order History</h4>
+          <div id="user-orders-list" class="user-orders-list">
+            <p class="empty-copy">No orders yet. Start shopping to see your order history here.</p>
+          </div>
+        </div>
+
+        <div id="user-diet-plans-container">
+          <h4>My Diet Plans</h4>
+          <div id="user-diet-plans-list" class="user-diet-plans-list">
+            <p class="empty-copy">No diet plans purchased yet.</p>
+          </div>
+        </div>
+      </section>
 
       <section class="shopping-overview" aria-labelledby="shopping-overview-title">
         <div class="section-heading">

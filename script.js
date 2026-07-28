@@ -14,6 +14,26 @@ const checkoutWhatsapp = document.getElementById('checkout-whatsapp');
 const checkoutEmail = document.getElementById('checkout-email');
 const bankDetails = document.getElementById('bank-details');
 
+// Authentication elements
+const authModal = document.getElementById('auth-modal');
+const loginForm = document.getElementById('login-form');
+const registerForm = document.getElementById('register-form');
+const authTabs = document.querySelectorAll('.auth-tab');
+const navLogin = document.getElementById('nav-login');
+const navRegister = document.getElementById('nav-register');
+const navDashboard = document.getElementById('nav-dashboard');
+const navLogout = document.getElementById('nav-logout');
+const navAdmin = document.getElementById('nav-admin');
+const userDashboard = document.getElementById('user-dashboard');
+const userName = document.getElementById('user-name');
+const userEmail = document.getElementById('user-email');
+const userOrdersList = document.getElementById('user-orders-list');
+const userDietPlansList = document.getElementById('user-diet-plans-list');
+const headerCart = document.getElementById('header-cart');
+const cartCount = document.getElementById('cart-count');
+
+let currentUser = null;
+
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1368,6 +1388,7 @@ function renderCart() {
     cartSubtotal.textContent = currency(0);
     updateDeliveryNote(0);
     buildOrderLinks();
+    if (cartCount) cartCount.textContent = '0';
     return;
   }
 
@@ -1403,6 +1424,10 @@ function renderCart() {
   
   updateDeliveryNote(subtotal);
   buildOrderLinks();
+  
+  // Update cart count in header
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  if (cartCount) cartCount.textContent = totalItems > 9 ? '9+' : totalItems;
 }
 
 function addToCart(productId) {
@@ -1771,6 +1796,15 @@ if (checkoutForm) {
   checkoutForm.addEventListener('submit', (event) => {
     event.preventDefault();
 
+    // Require authentication before checkout
+    if (!currentUser) {
+      openAuthModal('login');
+      if (checkoutStatus) {
+        checkoutStatus.textContent = 'Please login or create an account to complete your purchase.';
+      }
+      return;
+    }
+
     const formData = new FormData(checkoutForm);
     const paymentMethod = String(formData.get('paymentMethod') || '').trim();
 
@@ -1902,3 +1936,297 @@ if (urlParams.get('success') === 'true' && checkoutStatus) {
 if (urlParams.get('canceled') === 'true' && checkoutStatus) {
   checkoutStatus.textContent = 'Checkout was canceled. Your cart is still saved.';
 }
+
+// Authentication Functions
+async function checkAuthStatus() {
+  try {
+    const response = await fetch('/api/user');
+    if (response.ok) {
+      const data = await response.json();
+      currentUser = data.user;
+      updateAuthUI();
+      return true;
+    }
+  } catch (error) {
+    console.error('Auth check failed:', error);
+  }
+  currentUser = null;
+  updateAuthUI();
+  return false;
+}
+
+function updateAuthUI() {
+  if (currentUser) {
+    navLogin.classList.add('hidden');
+    navRegister.classList.add('hidden');
+    navDashboard.classList.remove('hidden');
+    navLogout.classList.remove('hidden');
+    
+    if (currentUser.isAdmin) {
+      navAdmin.classList.remove('hidden-admin');
+    }
+    
+    userName.textContent = currentUser.name;
+    userEmail.textContent = currentUser.email;
+    
+    // Pre-fill checkout form with user data
+    if (checkoutForm) {
+      const nameInput = checkoutForm.querySelector('[name="customerName"]');
+      const emailInput = checkoutForm.querySelector('[name="customerEmail"]');
+      if (nameInput) nameInput.value = currentUser.name;
+      if (emailInput) emailInput.value = currentUser.email;
+    }
+  } else {
+    navLogin.classList.remove('hidden');
+    navRegister.classList.remove('hidden');
+    navDashboard.classList.add('hidden');
+    navLogout.classList.add('hidden');
+    navAdmin.classList.add('hidden-admin');
+    userDashboard.classList.add('hidden');
+  }
+}
+
+// Auth Modal Functions
+function openAuthModal(tab = 'login') {
+  if (!authModal) return;
+  authModal.setAttribute('aria-hidden', 'false');
+  authModal.style.display = 'flex';
+  setAuthTab(tab);
+}
+
+function closeAuthModal() {
+  if (!authModal) return;
+  authModal.setAttribute('aria-hidden', 'true');
+  authModal.style.display = 'none';
+  const loginError = document.getElementById('login-error');
+  const registerError = document.getElementById('register-error');
+  if (loginError) loginError.textContent = '';
+  if (registerError) registerError.textContent = '';
+}
+
+function setAuthTab(tab) {
+  if (!authTabs.length) return;
+  authTabs.forEach(t => t.classList.remove('active'));
+  const tabButton = document.querySelector(`[data-tab="${tab}"]`);
+  if (tabButton) tabButton.classList.add('active');
+  
+  if (tab === 'login') {
+    if (loginForm) loginForm.classList.remove('hidden');
+    if (registerForm) registerForm.classList.add('hidden');
+    const title = document.getElementById('auth-modal-title');
+    if (title) title.textContent = 'Sign In';
+  } else {
+    if (loginForm) loginForm.classList.add('hidden');
+    if (registerForm) registerForm.classList.remove('hidden');
+    const title = document.getElementById('auth-modal-title');
+    if (title) title.textContent = 'Create Account';
+  }
+}
+
+// Login Handler
+if (loginForm) {
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(loginForm);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        currentUser = data.user;
+        updateAuthUI();
+        closeAuthModal();
+      } else {
+        const loginError = document.getElementById('login-error');
+        if (loginError) loginError.textContent = data.error || 'Login failed';
+      }
+    } catch (error) {
+      const loginError = document.getElementById('login-error');
+      if (loginError) loginError.textContent = 'Network error. Please try again.';
+    }
+  });
+}
+
+// Register Handler
+if (registerForm) {
+  registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(registerForm);
+    const name = formData.get('name');
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    if (password !== confirmPassword) {
+      const registerError = document.getElementById('register-error');
+      if (registerError) registerError.textContent = 'Passwords do not match';
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        currentUser = data.user;
+        updateAuthUI();
+        closeAuthModal();
+      } else {
+        const registerError = document.getElementById('register-error');
+        if (registerError) registerError.textContent = data.error || 'Registration failed';
+      }
+    } catch (error) {
+      const registerError = document.getElementById('register-error');
+      if (registerError) registerError.textContent = 'Network error. Please try again.';
+    }
+  });
+}
+
+// Logout Handler
+if (navLogout) {
+  navLogout.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+      currentUser = null;
+      updateAuthUI();
+      if (userDashboard) userDashboard.classList.add('hidden');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  });
+}
+
+// Auth Tab Switching
+if (authTabs.length) {
+  authTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      setAuthTab(tab.dataset.tab);
+    });
+  });
+}
+
+// Navigation Links
+if (navLogin) {
+  navLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('login');
+  });
+}
+
+if (navRegister) {
+  navRegister.addEventListener('click', (e) => {
+    e.preventDefault();
+    openAuthModal('register');
+  });
+}
+
+if (navDashboard) {
+  navDashboard.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (userDashboard) {
+      userDashboard.classList.remove('hidden');
+      loadUserOrders();
+      loadUserDietPlans();
+    }
+  });
+}
+
+// Modal Close
+document.querySelectorAll('.modal-close, .modal-overlay').forEach(el => {
+  el.addEventListener('click', () => {
+    closeAuthModal();
+  });
+});
+
+// Load User Orders
+async function loadUserOrders() {
+  try {
+    const response = await fetch('/api/user/orders');
+    if (response.ok) {
+      const orders = await response.json();
+      renderUserOrders(orders);
+    }
+  } catch (error) {
+    console.error('Failed to load orders:', error);
+  }
+}
+
+function renderUserOrders(orders) {
+  if (!orders || orders.length === 0) {
+    userOrdersList.innerHTML = '<p class="empty-copy">No orders yet. Start shopping to see your order history here.</p>';
+    return;
+  }
+  
+  userOrdersList.innerHTML = orders.map(order => `
+    <div class="user-order-card">
+      <div class="order-header">
+        <span class="order-id">#${order.id}</span>
+        <span class="order-date">${new Date(order.createdAt).toLocaleDateString()}</span>
+      </div>
+      <div class="order-items">
+        ${order.items.map(item => `
+          <div class="order-item">
+            <span>${item.name} x${item.quantity}</span>
+            <span>£${(item.price * item.quantity).toFixed(2)}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="order-total">Total: £${order.total.toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+// Load User Diet Plans
+async function loadUserDietPlans() {
+  try {
+    const response = await fetch('/api/user/orders');
+    if (response.ok) {
+      const orders = await response.json();
+      const dietPlanItems = orders.flatMap(order => 
+        order.items.filter(item => item.id >= 2001 && item.id <= 2012)
+      );
+      renderUserDietPlans(dietPlanItems);
+    }
+  } catch (error) {
+    console.error('Failed to load diet plans:', error);
+  }
+}
+
+function renderUserDietPlans(dietPlans) {
+  if (!dietPlans || dietPlans.length === 0) {
+    userDietPlansList.innerHTML = '<p class="empty-copy">No diet plans purchased yet.</p>';
+    return;
+  }
+  
+  userDietPlansList.innerHTML = dietPlans.map(plan => `
+    <div class="user-diet-plan-card">
+      <h4>${plan.name}</h4>
+      <p>Price: £${plan.price.toFixed(2)}</p>
+      <button class="diet-plan-view-btn" onclick="viewDietPlan('${plan.id}')">View Diet Plan</button>
+    </div>
+  `).join('');
+}
+
+function viewDietPlan(planId) {
+  const plan = dietPlans[Object.keys(dietPlans).find(key => key.includes(planId))];
+  if (plan) {
+    showDietPlanDetails(plan);
+  }
+}
+
+// Initialize auth on page load
+checkAuthStatus();

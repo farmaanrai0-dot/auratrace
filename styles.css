@@ -723,11 +723,17 @@ li + li { margin-top: 0.4rem; }
 .brand-block h1, .hero-copy h2, .section-heading h3, .showcase-card h3, .knowledge-card h4, .product-card h4, .cart-panel h4, .checkout-panel h4, .service-card h4, .support-card h4, .overview-card h4 { font-family: "Cormorant Garamond", Georgia, serif; letter-spacing: -0.02em; }
 .brand-block h1 { font-size: 1.8rem; line-height: 1; }
 .eyebrow { margin-bottom: 0.35rem; color: var(--accent); font-size: 0.73rem; font-weight: 800; letter-spacing: 0.24em; text-transform: uppercase; }
-.header-actions { display: flex; align-items: center; gap: 0.9rem; }
-.nav-links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.header-actions { display: flex; align-items: center; gap: 0.9rem; flex: 1; }
+.nav-links { display: flex; flex-wrap: wrap; gap: 0.5rem; flex: 1; }
 .nav-links a, .theme-toggle, .menu-toggle, .text-button, .icon-button { border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); text-decoration: none; padding: 0.62rem 0.9rem; cursor: pointer; transition: 0.22s ease; }
 .nav-links a:hover, .nav-links a.active, .theme-toggle:hover, .menu-toggle:hover, .text-button:hover, .icon-button:hover { color: var(--text); background: var(--accent-soft); border-color: rgba(194, 97, 45, 0.28); }
+.nav-links a#nav-login, .nav-links a#nav-register { background: var(--accent); color: white; border-color: var(--accent); }
+.nav-links a#nav-login:hover, .nav-links a#nav-register:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
 .menu-toggle { display: none; }
+.header-icons { display: flex; align-items: center; gap: 0.75rem; }
+.header-icon { position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); transition: 0.22s ease; }
+.header-icon:hover { color: var(--text); background: var(--accent-soft); border-color: rgba(194, 97, 45, 0.28); }
+.cart-count { position: absolute; top: -4px; right: -4px; background: var(--accent); color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-soft); }
 main { max-width: 1280px; margin: 0 auto; padding: 2rem; }
 section { margin-bottom: 2rem; }
 .hero-section, .cart-checkout-grid, .support-grid, .service-grid, .overview-grid, .knowledge-grid, .product-grid, .form-grid, .hero-showcase { display: grid; gap: 1.2rem; }
@@ -960,6 +966,28 @@ textarea { resize: vertical; }
 .modal-close { background: transparent; border: none; font-size: 2rem; color: var(--muted); cursor: pointer; padding: 0; width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.22s ease; }
 .modal-close:hover { background: rgba(66, 85, 59, 0.1); color: var(--text); }
 .modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+
+/* Authentication Modal Styles */
+.auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--line); }
+.auth-tab { flex: 1; padding: 12px; background: none; border: none; cursor: pointer; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+.auth-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.auth-form { display: flex; flex-direction: column; gap: 15px; }
+.auth-form.hidden { display: none; }
+.auth-error { color: var(--accent); font-size: 14px; margin: 0; min-height: 20px; }
+
+/* User Dashboard Styles */
+.user-info-card { background: var(--panel-strong); padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 4px solid var(--accent); }
+.user-orders-list, .user-diet-plans-list { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+.user-order-card, .user-diet-plan-card { background: var(--panel); padding: 20px; border-radius: 8px; border: 1px solid var(--line); transition: all 0.2s; }
+.user-order-card:hover, .user-diet-plan-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.order-id { font-weight: 600; color: var(--accent); }
+.order-date { color: var(--muted); font-size: 14px; }
+.order-items { margin: 10px 0; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.order-item { display: flex; justify-content: space-between; padding: 5px 0; }
+.order-total { font-weight: 700; color: var(--forest); text-align: right; }
+.diet-plan-view-btn { margin-top: 10px; padding: 8px 16px; background: var(--forest); color: white; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+.diet-plan-view-btn:hover { background: var(--accent); }
 
 /* Diet Plan Details Styles */
 .diet-plan-details-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
