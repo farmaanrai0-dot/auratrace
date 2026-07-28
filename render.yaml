@@ -13,5 +13,3 @@ services:
         value: your_gmail_app_password_here
       - key: PORT
         value: 3000
-      - key: SESSION_SECRET
-        value: AuraTrace-Secure-Session-Key-2026-Production
