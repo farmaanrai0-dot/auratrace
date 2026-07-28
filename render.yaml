@@ -7,8 +7,6 @@ services:
     envVars:
       - key: STRIPE_SECRET_KEY
         value: your_stripe_secret_key_here
-      - key: STRIPE_WEBHOOK_SECRET
-        value: your_webhook_secret_here
       - key: EMAIL_USER
         value: farmaanrai0@gmail.com
       - key: EMAIL_PASS
