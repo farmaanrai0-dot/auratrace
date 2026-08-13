@@ -3,23 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AuraTrace | Telehealth Consultation</title>
-    <meta
-      name="description"
-      content="Request a discreet AuraTrace telehealth consultation for wellness guidance, product questions, and tailored care planning."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css?v=202607242000" />
+    <title>AuraTrace | Herb Education and Safety</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-
-    <header class="site-header">
+    <header class="topbar">
       <div class="brand-block">
         <div class="brand-mark">A</div>
         <div>
@@ -28,81 +16,48 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">Menu</button>
-        <nav class="nav-links" id="site-nav" aria-label="Main navigation">
-          <a href="index.html">Home</a>
-          <a href="index.html#products">Shop</a>
-          <a href="index.html#diet-plans">Diet plans</a>
-          <a class="active" href="telehealth.html">Consultation</a>
-          <a href="traceability.html">Traceability</a>
+        <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <nav class="nav-links" id="site-nav">
+          <a href="index.html">Homepage</a>
+          <a class="active" href="telehealth.html">Herb guidance</a>
+          <a href="traceability.html">Batch passport</a>
         </nav>
         <button class="theme-toggle" type="button" aria-label="Toggle colour theme">Light mode</button>
       </div>
     </header>
 
-    <main id="main-content" class="page-shell">
+    <main class="page-shell">
       <section class="intro-card">
-        <p class="eyebrow">TELEHEALTH CONSULTATION</p>
-        <h2>Begin with a discreet, clinician-supported intake.</h2>
-        <p>
-          Share your goals, concerns, and preferred communication style so our team can prepare a tailored care plan. This is general wellness support — not a substitute for emergency or specialist medical care.
-        </p>
+        <p class="eyebrow">HERB EDUCATION AND SAFETY</p>
+        <h2>Ask informed questions before you buy or use a herb.</h2>
+        <p>Submit an education request about traditional use, available evidence, preparation, interactions or product records. This is not diagnosis or treatment, and it does not replace a pharmacist or doctor.</p>
       </section>
 
       <form id="consultation-form" class="consultation-form">
         <label>
           Full name
-          <input name="customerName" type="text" placeholder="Aisha Patel" required />
+          <input type="text" placeholder="Aisha Patel" />
         </label>
         <label>
           Email address
-          <input name="customerEmail" type="email" placeholder="name@example.co.uk" required />
+          <input type="email" placeholder="name@example.co.uk" />
         </label>
         <label>
-          Primary concern
-          <select name="primaryConcern">
-            <option>Wellness support</option>
-            <option>Herb and product guidance</option>
-            <option>Diet plan questions</option>
-            <option>Batch confidence</option>
-            <option>Traceability review</option>
+            What would you like to understand?
+          <select>
+            <option>Traditional use and evidence</option>
+            <option>Safety, medicines and interactions</option>
+            <option>Batch passport or growing record</option>
+            <option>Fresh herb order or future harvest</option>
           </select>
         </label>
         <label>
           Notes for our team
-          <textarea name="notes" rows="6" placeholder="Please share your preferences, timeline, and any relevant context."></textarea>
+          <textarea rows="6" placeholder="Please share your preferences, timeline, and any relevant context."></textarea>
         </label>
-        <button type="submit" class="btn btn-primary">Request consultation</button>
+        <button type="submit" class="btn btn-primary">Send education request</button>
         <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
       </form>
     </main>
-
-    <footer class="site-footer">
-      <div class="footer-grid">
-        <div>
-          <p class="eyebrow">AURA TRACE</p>
-          <p>Premium botanical storefront with clear guidance, direct support, and transparent ordering.</p>
-        </div>
-        <div>
-          <h4>Explore</h4>
-          <div class="footer-links">
-            <a href="index.html#products">Shop products</a>
-            <a href="index.html#diet-plans">Diet plans</a>
-            <a href="traceability.html">Batch traceability</a>
-          </div>
-        </div>
-        <div>
-          <h4>Contact</h4>
-          <div class="footer-links">
-            <a href="https://wa.me/447575630141" target="_blank" rel="noreferrer">WhatsApp support</a>
-            <a href="mailto:hello@auratrace.co.uk">hello@auratrace.co.uk</a>
-          </div>
-        </div>
-      </div>
-      <p class="footer-note">© 2026 AuraTrace. General wellness guidance only — not medical advice.</p>
-    </footer>
-
-    <script src="site-config.js?v=202607242000"></script>
-    <script src="shared.js?v=202607242000"></script>
   </body>
 </html>
