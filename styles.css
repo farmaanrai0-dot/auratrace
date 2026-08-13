@@ -374,6 +374,22 @@ main {
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
+.language-picker select {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+html[dir="rtl"] .topbar,
+html[dir="rtl"] .header-actions {
+  direction: rtl;
+}
+
 .theme-toggle:hover {
   transform: translateY(-1px);
   background: rgba(127, 200, 183, 0.16);
