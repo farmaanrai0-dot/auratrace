@@ -191,6 +191,33 @@ const herbEntries = [
   }
 ];
 
+const globalReferenceHerbs = [
+  'Aloe vera', 'Anise', 'Artichoke', 'Astragalus', 'Basil', 'Bay leaf', 'Bee balm', 'Bilberry', 'Black cohosh', 'Black cumin',
+  'Black pepper', 'Blessed thistle', 'Borage', 'Calendula', 'Cardamom', 'Cayenne', 'Celery seed', 'Chasteberry', 'Chickweed', 'Cinnamon',
+  'Clove', 'Coriander', 'Cranberry', 'Cumin', 'Damiana', 'Dill', 'Elderberry', 'Elderflower', 'Elecampane', 'Fennel',
+  'Feverfew', 'Frankincense', 'Garlic', 'Gotu kola', 'Green tea', 'Hawthorn', 'Hibiscus', 'Hops', 'Horseradish', 'Hyssop',
+  'Jasmine', 'Juniper', 'Kava', 'Kelp', 'Kudzu', 'Lavender', 'Marshmallow root', 'Meadowsweet', 'Moringa', 'Mugwort',
+  'Mullein', 'Myrrh', 'Oat straw', 'Olive leaf', 'Oregano', 'Passionflower', 'Pau d’arco', 'Parsley', 'Passion fruit leaf', 'Pennyroyal',
+  'Plantain leaf', 'Pomegranate', 'Red clover', 'Rhodiola', 'Rooibos', 'Saffron', 'Saint Johns wort', 'Schisandra', 'Shatavari', 'Skullcap',
+  'Slippery elm', 'Spearmint', 'Spirulina', 'Star anise', 'Suma', 'Tarragon', 'Thyme', 'Tribulus', 'Uva ursi', 'Valerian',
+  'Wheatgrass', 'White willow', 'Wild yam', 'Witch hazel', 'Wormwood', 'Yarrow', 'Yerba mate', 'Yohimbe', 'Zest of lemon', 'Ziziphus'
+];
+
+globalReferenceHerbs.forEach((name) => {
+  if (!herbEntries.some((entry) => normalise(entry.name) === normalise(name))) {
+    herbEntries.push({
+      name,
+      botanical: 'Reference index entry - botanical identity to verify',
+      aliases: [],
+      summary: 'Included as a global reference entry. AuraTrace has not yet published a detailed evidence or safety profile for this plant.',
+      uses: ['No use summary published yet - traditional names and uses vary by region and preparation.'],
+      cautions: ['Do not use this index entry as a safety recommendation.', 'Wait for a verified profile or consult a qualified professional.'],
+      interactions: 'Not assessed in this reference entry. Ask a pharmacist before using any herb with medicines.',
+      evidence: 'Detailed botanical, evidence and safety review pending.'
+    });
+  }
+});
+
 const searchInput = document.getElementById('herb-search');
 const dictionaryResults = document.getElementById('dictionary-results');
 const dictionaryStatus = document.getElementById('dictionary-status');
@@ -250,7 +277,7 @@ function renderEntries(query = '') {
 
   dictionaryStatus.textContent = cleanQuery
     ? `${ranked.length} close match${ranked.length === 1 ? '' : 'es'} for “${query}”.`
-    : `${herbEntries.length} entries currently available in the living dictionary.`;
+    : `${herbEntries.length} reference entries currently available in the living dictionary.`;
 }
 
 searchInput.addEventListener('input', (event) => renderEntries(event.target.value));
