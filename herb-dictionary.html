@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AuraTrace | Herb Dictionary</title>
+    <meta name="description" content="Search the AuraTrace living herb dictionary for traditional uses, evidence notes, cautions and medicine-interaction information." />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="brand-mark">A</div>
+        <div><p class="eyebrow">AURA TRACE</p><h1>AuraTrace</h1></div>
+      </div>
+      <div class="header-actions">
+        <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <nav class="nav-links" id="site-nav" aria-label="Main navigation">
+          <a href="index.html">Homepage</a>
+          <a href="index.html#products">Ready stock</a>
+          <a href="index.html#growing-model">Growing model</a>
+          <a class="active" href="herb-dictionary.html">Herb dictionary</a>
+          <a href="index.html#education">Education</a>
+          <a href="telehealth.html">Herb guidance</a>
+          <a href="traceability.html">Batch passport</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-label="Toggle colour theme">Light mode</button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="dictionary-hero">
+        <p class="eyebrow">LIVING HERB DICTIONARY</p>
+        <h2>Search a herb. Start with the evidence and the cautions.</h2>
+        <p>Find concise information about traditional use, research status, health-condition cautions and medicine interactions. Spelling mistakes and common names are supported.</p>
+        <label class="dictionary-search-label" for="herb-search">Search by common name, botanical name or alias</label>
+        <div class="dictionary-search">
+          <input id="herb-search" type="search" autocomplete="off" placeholder="Try “ashwaganda”, “methi” or “Withania”" />
+          <span aria-hidden="true">⌕</span>
+        </div>
+        <p id="dictionary-status" class="dictionary-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="dictionary-notice" aria-label="Safety notice">
+        <strong>Read this first:</strong> This is education, not diagnosis or treatment. Traditional use is not proof that a herb treats a condition. Ask a pharmacist or doctor before using herbs with medicines, during pregnancy, before surgery or for a diagnosed condition.
+      </section>
+
+      <section id="dictionary-results" class="dictionary-grid" aria-label="Herb dictionary entries"></section>
+    </main>
+
+    <script src="script.js"></script>
+    <script src="herb-dictionary.js"></script>
+  </body>
+</html>
