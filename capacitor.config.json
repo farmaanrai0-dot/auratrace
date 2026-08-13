@@ -1,0 +1,11 @@
+{
+  "appId": "com.auratrace.app",
+  "appName": "AuraTrace",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://auratrace.co.uk",
+    "cleartext": true,
+    "androidScheme": "https"
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">AuraTrace</string>
+    <string name="title_activity_main">AuraTrace</string>
+    <string name="package_name">com.auratrace.app</string>
+    <string name="custom_url_scheme">com.auratrace.app</string>
+</resources>

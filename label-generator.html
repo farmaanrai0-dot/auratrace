@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraTrace Product Label Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #2d5a27;
+        }
+        .label-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .label-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #2d5a27;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1e3d1a;
+        }
+        .download-all {
+            background: #2d5a27;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>AuraTrace Product Label Generator</h1>
+    <button class="download-all" onclick="downloadAllLabels()">Download All Labels</button>
+    <div class="label-container" id="labels"></div>
+
+    <script src="site-config.js"></script>
+    <script>
+        const products = window.auraSiteConfig.defaultProducts.filter(p => p.id < 2000);
+        
+        function createLabel(product) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Clean white background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Subtle gradient accent at top
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#2d5a27');
+            gradient.addColorStop(1, '#4a7c42');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, 8);
+            
+            // Minimal brand logo area
+            ctx.fillStyle = '#2d5a27';
+            ctx.font = 'bold 32px Georgia';
+            ctx.textAlign = 'left';
+            ctx.fillText('AuraTrace', 40, 60);
+            
+            // Decorative line
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, 80);
+            ctx.lineTo(canvas.width - 40, 80);
+            ctx.stroke();
+            
+            // Product name with elegant typography
+            ctx.fillStyle = '#1a1a1a';
+            ctx.font = 'bold 28px Georgia';
+            ctx.textAlign = 'left';
+            
+            // Wrap product name if too long
+            const productName = product.name.replace('AuraTrace ', '');
+            ctx.fillText(productName, 40, 130);
+            
+            // Category in subtle color
+            ctx.fillStyle = '#888888';
+            ctx.font = 'italic 14px Georgia';
+            ctx.fillText(product.category, 40, 155);
+            
+            // Clean divider
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(40, 175, canvas.width - 80, 1);
+            
+            // Description with better spacing
+            ctx.fillStyle = '#333333';
+            ctx.font = '14px Georgia';
+            const words = product.description.split(' ');
+            let line = '';
+            let y = 210;
+            const maxWidth = canvas.width - 80;
+            const lineHeight = 22;
+            
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, 40, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, 40, y);
+            
+            // Benefits section with modern styling
+            y += 40;
+            ctx.fillStyle = '#2d5a27';
+            ctx.font = 'bold 16px Georgia';
+            ctx.fillText('Key Benefits', 40, y);
+            
+            y += 25;
+            ctx.fillStyle = '#555555';
+            ctx.font = '14px Georgia';
+            product.benefits.forEach((benefit, index) => {
+                ctx.fillText('— ' + benefit, 40, y + (index * 22));
+            });
+            
+            // Price in elegant placement
+            ctx.fillStyle = '#2d5a27';
+            ctx.font = 'bold 36px Georgia';
+            ctx.textAlign = 'right';
+            ctx.fillText('£' + product.price.toFixed(2), canvas.width - 40, 130);
+            
+            // Bottom section with clean layout
+            const bottomY = canvas.height - 60;
+            ctx.fillStyle = '#f8f8f8';
+            ctx.fillRect(0, bottomY - 20, canvas.width, 60);
+            
+            // Contact info in modern style
+            ctx.fillStyle = '#666666';
+            ctx.font = '12px Georgia';
+            ctx.textAlign = 'left';
+            ctx.fillText('hello@auratrace.co.uk', 40, bottomY + 15);
+            ctx.fillText('+44 7575 630141', 40, bottomY + 35);
+            
+            // Quantity info
+            ctx.textAlign = 'right';
+            ctx.fillText('Qty: ' + product.quantity, canvas.width - 40, bottomY + 25);
+            
+            // Minimal decorative element
+            ctx.fillStyle = '#2d5a27';
+            ctx.beginPath();
+            ctx.arc(canvas.width - 40, 60, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            return canvas;
+        }
+        
+        function downloadLabel(product, canvas) {
+            const link = document.createElement('a');
+            link.download = `${product.name.replace(/\s+/g, '_')}_label.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadAllLabels() {
+            products.forEach((product, index) => {
+                setTimeout(() => {
+                    const canvas = document.getElementById(`canvas-${product.id}`);
+                    if (canvas) {
+                        downloadLabel(product, canvas);
+                    }
+                }, index * 500);
+            });
+        }
+        
+        function renderLabels() {
+            const container = document.getElementById('labels');
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'label-card';
+                
+                const canvas = createLabel(product);
+                canvas.id = `canvas-${product.id}`;
+                
+                const title = document.createElement('h3');
+                title.textContent = product.name;
+                title.style.marginBottom = '10px';
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download Label';
+                downloadBtn.onclick = () => downloadLabel(product, canvas);
+                
+                card.appendChild(title);
+                card.appendChild(canvas);
+                card.appendChild(downloadBtn);
+                container.appendChild(card);
+            });
+        }
+        
+        renderLabels();
+    </script>
+</body>
+</html>

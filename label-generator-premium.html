@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraTrace - Product Labels</title>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-color: #fcfcfc;
+      --border-color: #1a1a1a;
+      --text-main: #111111;
+      --text-sub: #555555;
+      --leaf-color: #4a6b38;
+      --leaf-dark: #334d25;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #e5e5e5;
+      font-family: 'Montserrat', sans-serif;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .download-btn {
+      background-color: var(--leaf-dark);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 4px;
+      margin: 10px;
+    }
+
+    .download-btn:hover {
+      background-color: var(--leaf-color);
+    }
+
+    /* Individual Label Container */
+    .label-card {
+      width: 400px;
+      height: 560px;
+      background-color: var(--bg-color);
+      border: 2px solid var(--border-color);
+      padding: 30px 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      position: relative;
+    }
+
+    /* Brand Header */
+    .brand-title {
+      font-family: 'Cinzel', serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--text-main);
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
+
+    /* Product Details */
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .product-name {
+      font-family: 'Cinzel', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.3;
+      letter-spacing: 1px;
+    }
+
+    .divider-line {
+      width: 60%;
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 8px 0;
+    }
+
+    .product-subtext {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+    }
+
+    /* Botanical SVG Artwork */
+    .botanical-art {
+      width: 140px;
+      height: 160px;
+      margin: 15px 0;
+    }
+
+    /* Footer Meta */
+    .label-footer {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      border-top: 1px solid #e0e0e0;
+      width: 100%;
+      padding-top: 12px;
+    }
+
+    .labels-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+    }
+
+    .label-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .individual-download {
+      background-color: var(--leaf-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .individual-download:hover {
+      background-color: var(--leaf-dark);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>AuraTrace Premium Product Labels</h1>
+    <button class="download-btn" onclick="downloadAllLabels()">Download All Labels (4K)</button>
+  </div>
+
+  <div id="labels-container" class="labels-container"></div>
+
+  <script>
+    const products = [
+      { name: "Suraksha Herbal Tea", category: "Ayurvedic Herbal Blend" },
+      { name: "Apamarga Kshara Tablets", category: "Classical Formulation" },
+      { name: "Arjuna Tablets", category: "Herbal Supplement" },
+      { name: "Ashwagandha Tablets", category: "Vitality & Balance" },
+      { name: "Ashwagandha + Ayush Kwath", category: "Immunity Combo Pack" },
+      { name: "Brahmi Tablets", category: "Cognitive Wellness" },
+      { name: "Giloy Tablets", category: "Natural Shield" },
+      { name: "Power Plus Tablets", category: "Strength & Energy" },
+      { name: "Pustihar Tablets", category: "Nourishment Care" },
+      { name: "Sugar Fit Tablets", category: "Metabolic Balance" },
+      { name: "Slim Rattan Tablets", category: "Weight Management" },
+      { name: "Slim Rattan Granules", category: "Herbal Granules" },
+      { name: "Madhumay Rakshak Granules", category: "Glucose Care" },
+      { name: "Dard Rakshak Tablets", category: "Joint & Pain Care" },
+      { name: "Dard Rakshak Oil", category: "Therapeutic Body Oil" },
+      { name: "Gynae Plus Tablets", category: "Women's Health" },
+      { name: "Ayush Kwath", category: "Immunity Booster" }
+    ];
+
+    const leafSVG = `
+      <svg class="botanical-art" viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 110 C50 70 52 30 50 10" stroke="#334d25" stroke-width="2" stroke-linecap="round"/>
+        <!-- Left Leaves -->
+        <path d="M50 90 C35 85 20 70 25 55 C40 60 48 75 50 90 Z" fill="#4a6b38" opacity="0.9"/>
+        <path d="M50 65 C30 60 15 45 20 30 C35 35 48 50 50 65 Z" fill="#4a6b38"/>
+        <path d="M50 40 C35 35 25 25 28 15 C38 20 48 30 50 40 Z" fill="#4a6b38" opacity="0.85"/>
+        <!-- Right Leaves -->
+        <path d="M50 80 C65 75 80 60 75 45 C60 50 52 65 50 80 Z" fill="#334d25"/>
+        <path d="M50 55 C70 50 85 35 80 20 C65 25 52 40 50 55 Z" fill="#4a6b38"/>
+        <path d="M50 30 C65 25 75 15 72 5 C62 10 52 20 50 30 Z" fill="#334d25" opacity="0.9"/>
+      </svg>
+    `;
+
+    const container = document.getElementById('labels-container');
+
+    products.forEach((product, index) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'label-wrapper';
+      
+      const card = document.createElement('div');
+      card.className = 'label-card';
+      card.id = `label-${index}`;
+      card.innerHTML = `
+        <div>
+          <div class="brand-title">AuraTrace</div>
+          <div class="product-subtext">Botanical Healthcare</div>
+        </div>
+        
+        <div class="product-info">
+          <div class="product-name">${product.name}</div>
+          <div class="divider-line"></div>
+          <div class="product-subtext">${product.category}</div>
+        </div>
+
+        ${leafSVG}
+
+        <div class="label-footer">
+          100% Pure & Natural • Authenticated Botanical
+        </div>
+      `;
+      
+      const downloadBtn = document.createElement('button');
+      downloadBtn.className = 'individual-download';
+      downloadBtn.textContent = 'Download Label';
+      downloadBtn.onclick = () => downloadLabel(index, product.name);
+      
+      wrapper.appendChild(card);
+      wrapper.appendChild(downloadBtn);
+      container.appendChild(wrapper);
+    });
+
+    async function downloadLabel(index, productName) {
+      const element = document.getElementById(`label-${index}`);
+      const scale = 4; // 4K resolution (4x scale)
+      
+      try {
+        const canvas = await html2canvas(element, {
+          scale: scale,
+          backgroundColor: '#fcfcfc',
+          logging: false
+        });
+        
+        const link = document.createElement('a');
+        link.download = `${productName.replace(/\s+/g, '_')}_label_4K.png`;
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+      } catch (error) {
+        console.error('Error generating label:', error);
+        alert('Error generating label. Please try again.');
+      }
+    }
+
+    async function downloadAllLabels() {
+      for (let i = 0; i < products.length; i++) {
+        await downloadLabel(i, products[i].name);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Small delay between downloads
+      }
+    }
+  </script>
+</body>
+</html>
